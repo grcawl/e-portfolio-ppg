@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-Portfolio — Rahmat Aulia | PPG PGSD</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   ROOT & RESET
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:       #0D1B12;
+  --forest:    #183A25;
+  --moss:      #2E5F3E;
+  --sage:      #5C8B6A;
+  --mist:      #A8C4AF;
+  --cream:     #F4EFE4;
+  --parchment: #EDE6D5;
+  --gold:      #B8913A;
+  --gold-lt:   #D4AF62;
+  --amber:     #E8C97A;
+  --white:     #FDFAF4;
+
+  --ff-head: 'Cormorant Garamond', Georgia, serif;
+  --ff-body: 'Outfit', sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--ff-body);
+  background: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ============================================================
+   CUSTOM CURSOR
+   ============================================================ */
+.cursor {
+  position: fixed; top: 0; left: 0; z-index: 9999;
+  pointer-events: none; mix-blend-mode: difference;
+}
+.cursor-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--amber);
+  position: absolute; transform: translate(-50%, -50%);
+  transition: transform 0.1s;
+}
+.cursor-ring {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid var(--amber);
+  position: absolute; transform: translate(-50%, -50%);
+  transition: all 0.15s var(--ease-out);
+  opacity: 0.6;
+}
+body:has(a:hover) .cursor-ring,
+body:has(button:hover) .cursor-ring { transform: translate(-50%, -50%) scale(1.6); opacity: 0.3; }
+
+/* ============================================================
+   NOISE OVERLAY
+   ============================================================ */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 9998;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; opacity: 0.4;
+}
+
+/* ============================================================
+   SIDEBAR NAVIGATION
+   ============================================================ */
+.sidenav {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 72px;
+  background: var(--forest);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 6px;
+  z-index: 100;
+  box-shadow: 4px 0 32px rgba(13,27,18,0.3);
+}
+.sidenav::before {
+  content: 'RA';
+  position: absolute; top: 28px;
+  font-family: var(--ff-head); font-size: 18px; font-weight: 700;
+  color: var(--amber); letter-spacing: 0.05em;
+}
+.sidenav::after {
+  content: '';
+  position: absolute; bottom: 28px;
+  width: 1px; height: 48px;
+  background: linear-gradient(to bottom, var(--sage), transparent);
+}
+
+.nav-item {
+  position: relative;
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: none; border: none; background: transparent;
+  transition: background 0.2s, transform 0.2s;
+  color: var(--mist);
+}
+.nav-item:hover { background: rgba(255,255,255,0.08); transform: translateX(3px); color: var(--amber); }
+.nav-item.active { background: var(--moss); color: var(--amber); }
+.nav-item svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+
+.nav-tooltip {
+  position: absolute; left: calc(100% + 16px);
+  background: var(--ink); color: var(--cream);
+  font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+  padding: 5px 12px; border-radius: 6px; white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transform: translateX(-8px);
+  transition: all 0.15s;
+}
+.nav-tooltip::before {
+  content: '';
+  position: absolute; right: 100%; top: 50%; transform: translateY(-50%);
+  border: 5px solid transparent; border-right-color: var(--ink);
+}
+.nav-item:hover .nav-tooltip { opacity: 1; transform: translateX(0); }
+
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+.main { margin-left: 72px; }
+
+.page { display: none; min-height: 100vh; }
+.page.active { display: block; }
+
+/* ============================================================
+   PAGE 1 — BERANDA
+   ============================================================ */
+#p1 {
+  background: var(--forest);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: 1fr auto;
+}
+
+/* Animated botanical background */
+.bg-botanical {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+}
+.bg-botanical svg { position: absolute; }
+
+.hero-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  min-height: 100vh;
+  padding: 80px 72px 80px 80px;
+  position: relative; z-index: 2;
+  gap: 64px;
+}
+
+.hero-left { }
+
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 32px;
+}
+.eyebrow-line { width: 40px; height: 1px; background: var(--gold); }
+.eyebrow-text {
+  font-family: var(--ff-body); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold-lt);
+}
+
+.hero-name {
+  font-family: var(--ff-head);
+  font-size: clamp(56px, 7vw, 96px);
+  font-weight: 300;
+  color: var(--white);
+  line-height: 0.95;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.hero-name .line { display: block; animation: slideUp 1s var(--ease-out) both; }
+.hero-name .line:nth-child(1) { animation-delay: 0.1s; }
+.hero-name .line:nth-child(2) {
+  font-style: italic; color: var(--amber);
+  animation-delay: 0.25s;
+}
+
+.hero-title {
+  font-family: var(--ff-body); font-size: 13px; font-weight: 300;
+  letter-spacing: 0.15em; color: var(--mist); text-transform: uppercase;
+  margin-bottom: 48px;
+  animation: fadeUp 1s 0.5s var(--ease-out) both;
+}
+
+.hero-quote-wrap {
+  border-left: 2px solid var(--gold);
+  padding-left: 24px;
+  margin-bottom: 56px;
+  animation: fadeUp 1s 0.7s var(--ease-out) both;
+}
+.hero-quote-text {
+  font-family: var(--ff-head); font-style: italic;
+  font-size: 18px; color: rgba(255,255,255,0.75); line-height: 1.7;
+  margin-bottom: 8px;
+}
+.hero-quote-src { font-size: 11px; color: var(--gold-lt); letter-spacing: 0.12em; }
+
+.hero-info-chips {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  animation: fadeUp 1s 0.9s var(--ease-out) both;
+}
+.chip {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px; padding: 7px 16px;
+  font-size: 12px; font-weight: 400; color: var(--mist);
+  backdrop-filter: blur(8px);
+}
+.chip strong { color: var(--amber); font-weight: 500; }
+
+.hero-right {
+  display: flex; flex-direction: column; gap: 16px;
+  animation: fadeUp 1s 0.6s var(--ease-out) both;
+}
+
+.info-card-big {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; padding: 28px;
+  backdrop-filter: blur(12px);
+  transition: background 0.3s, transform 0.3s;
+}
+.info-card-big:hover { background: rgba(255,255,255,0.09); transform: translateY(-2px); }
+.icb-label {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gold-lt); margin-bottom: 8px;
+}
+.icb-val { font-family: var(--ff-head); font-size: 22px; color: var(--white); font-weight: 400; }
+.icb-sub { font-size: 12px; color: var(--mist); margin-top: 4px; }
+
+.hero-scroll {
+  position: absolute; bottom: 36px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  color: var(--mist); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  animation: fadeIn 2s 1.5s both;
+  z-index: 2;
+}
+.scroll-line {
+  width: 1px; height: 36px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: scrollPulse 2s infinite;
+}
+
+/* ============================================================
+   PAGE HEADER — shared
+   ============================================================ */
+.pg-header {
+  padding: 80px 80px 64px;
+  position: relative; overflow: hidden;
+  background: var(--forest);
+}
+.pg-header::after {
+  content: '';
+  position: absolute; bottom: -1px; left: 0; right: 0;
+  height: 80px; background: var(--cream);
+  clip-path: ellipse(60% 100% at 50% 100%);
+}
+.pg-eyebrow {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.pg-eyebrow-line { width: 32px; height: 1px; background: var(--gold); }
+.pg-eyebrow-text {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--gold-lt);
+}
+.pg-title {
+  font-family: var(--ff-head);
+  font-size: clamp(40px, 6vw, 72px);
+  color: var(--white); font-weight: 300; line-height: 1;
+}
+.pg-title em { font-style: italic; color: var(--amber); }
+
+/* ============================================================
+   SECTION LABEL
+   ============================================================ */
+.s-label {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 24px;
+}
+.s-label-text {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--sage);
+}
+.s-label-line { flex: 1; height: 1px; background: var(--parchment); }
+
+/* ============================================================
+   PAGE 2 — PROFIL
+   ============================================================ */
+#p2 { background: var(--cream); }
+
+.profil-body { padding: 80px 80px; }
+
+.profil-grid {
+  display: grid; grid-template-columns: 1fr 1.4fr; gap: 80px; align-items: start;
+}
+
+.profil-left { position: sticky; top: 32px; }
+
+.avatar-frame {
+  width: 100%; aspect-ratio: 3/4; border-radius: 24px;
+  background: linear-gradient(160deg, var(--moss), var(--forest));
+  position: relative; overflow: hidden; margin-bottom: 24px;
+  box-shadow: 0 24px 64px rgba(13,27,18,0.2);
+}
+.avatar-frame .avatar-placeholder {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px;
+}
+.avatar-monogram {
+  font-family: var(--ff-head); font-size: 72px; font-weight: 300;
+  color: rgba(255,255,255,0.9); line-height: 1;
+}
+.avatar-hint { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 0.12em; text-align: center; }
+.avatar-frame::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 40%;
+  background: linear-gradient(to top, rgba(13,27,18,0.6), transparent);
+}
+
+.profil-badge-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.pbadge {
+  background: var(--forest); color: var(--mist);
+  border-radius: 999px; padding: 6px 14px; font-size: 11px; font-weight: 400;
+}
+
+.profil-right { }
+
+.narasi-p {
+  font-family: var(--ff-head); font-size: 18px; font-weight: 300;
+  color: var(--ink); line-height: 1.85; margin-bottom: 20px;
+}
+.narasi-p strong { font-weight: 600; color: var(--forest); }
+.narasi-p em { font-style: italic; color: var(--moss); }
+
+.daerah-strip {
+  background: var(--forest); border-radius: 20px;
+  padding: 32px; margin: 40px 0;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+.daerah-strip-title {
+  grid-column: 1 / -1;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--gold-lt); margin-bottom: 4px;
+}
+.daerah-item { display: flex; gap: 12px; align-items: flex-start; }
+.daerah-emoji {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.daerah-nama { font-size: 13px; font-weight: 500; color: var(--white); margin-bottom: 3px; }
+.daerah-ket { font-size: 11px; color: var(--mist); line-height: 1.5; }
+
+.pull-quote {
+  border-top: 1px solid var(--parchment);
+  border-bottom: 1px solid var(--parchment);
+  padding: 32px 0; margin: 40px 0; text-align: center;
+}
+.pull-quote-text {
+  font-family: var(--ff-head); font-style: italic; font-size: 26px;
+  color: var(--forest); line-height: 1.6; margin-bottom: 12px;
+}
+.pull-quote-src { font-size: 12px; color: var(--gold); letter-spacing: 0.12em; }
+
+/* ============================================================
+   PAGE 3 — ARTEFAK
+   ============================================================ */
+#p3 { background: var(--cream); }
+
+.artefak-body { padding: 64px 80px 80px; }
+
+.artefak-tabs {
+  display: flex; gap: 0; margin-bottom: 48px;
+  border-bottom: 1px solid var(--parchment);
+}
+.atab {
+  padding: 12px 28px; font-size: 13px; font-weight: 400;
+  color: var(--sage); background: transparent; border: none;
+  cursor: none; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all 0.2s; letter-spacing: 0.03em;
+  font-family: var(--ff-body);
+}
+.atab:hover { color: var(--forest); }
+.atab.active { color: var(--forest); border-bottom-color: var(--gold); font-weight: 500; }
+
+.apane { display: none; }
+.apane.active { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+.acard {
+  background: var(--white); border-radius: 20px; padding: 28px;
+  border: 1px solid var(--parchment);
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+.acard:hover { box-shadow: 0 12px 40px rgba(13,27,18,0.08); transform: translateY(-3px); }
+.acard.full { grid-column: 1 / -1; }
+.acard.dark { background: var(--forest); border-color: var(--forest); }
+
+.acard-icon {
+  width: 44px; height: 44px; border-radius: 12px; margin-bottom: 16px;
+  background: linear-gradient(135deg, var(--moss), var(--sage));
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.acard.dark .acard-icon { background: rgba(255,255,255,0.1); }
+
+.acard-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--sage); margin-bottom: 8px;
+}
+.acard.dark .acard-label { color: var(--mist); }
+
+.acard-title { font-family: var(--ff-head); font-size: 22px; color: var(--forest); margin-bottom: 12px; }
+.acard.dark .acard-title { color: var(--white); }
+
+.acard-text { font-size: 13px; color: #4A5E50; line-height: 1.75; }
+.acard.dark .acard-text { color: rgba(255,255,255,0.7); }
+.acard-text strong { color: var(--forest); font-weight: 500; }
+.acard.dark .acard-text strong { color: var(--amber); }
+
+.teori-list { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.teori-row {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 14px; border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+}
+.teori-bullet {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--amber);
+  flex-shrink: 0; margin-top: 6px;
+}
+.teori-row-text { font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.65; }
+.teori-row-text strong { color: var(--amber); font-weight: 500; }
+
+.upload-zone {
+  margin-top: 16px; padding: 16px; border-radius: 12px;
+  border: 1.5px dashed var(--mist); background: rgba(168,196,175,0.1);
+  text-align: center; font-size: 12px; color: var(--sage);
+}
+
+/* ============================================================
+   PAGE 4 — PENILAIAN
+   ============================================================ */
+#p4 { background: var(--cream); }
+
+.penilaian-body { padding: 64px 80px 80px; }
+
+.lamp-tabs {
+  display: flex; gap: 12px; margin-bottom: 40px;
+}
+.ltab {
+  padding: 10px 24px; border-radius: 999px; font-size: 13px;
+  background: var(--parchment); color: var(--sage); border: none;
+  cursor: none; font-family: var(--ff-body); font-weight: 400;
+  transition: all 0.2s;
+}
+.ltab:hover { background: var(--forest); color: var(--amber); }
+.ltab.active { background: var(--forest); color: var(--amber); font-weight: 500; }
+
+.lpane { display: none; }
+.lpane.active { display: block; }
+
+.siklus-accordion { display: flex; flex-direction: column; gap: 12px; }
+
+.sacc {
+  background: var(--white); border-radius: 16px;
+  border: 1px solid var(--parchment); overflow: hidden;
+}
+.sacc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px; cursor: none;
+  transition: background 0.2s;
+}
+.sacc-header:hover { background: var(--parchment); }
+.sacc-left { display: flex; align-items: center; gap: 16px; }
+.sacc-num {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ff-head); font-size: 20px; font-weight: 600;
+  flex-shrink: 0;
+}
+.sn1 { background: #EEF0FD; color: #3A3A9A; }
+.sn2 { background: #E8F5EE; color: #1A5E38; }
+.sn3 { background: #FDF4E3; color: #7A5215; }
+
+.sacc-name { font-family: var(--ff-head); font-size: 20px; color: var(--forest); }
+.sacc-sub { font-size: 12px; color: var(--sage); margin-top: 2px; }
+.sacc-arrow { font-size: 20px; color: var(--sage); transition: transform 0.3s var(--ease-out); }
+.sacc.open .sacc-arrow { transform: rotate(180deg); }
+
+.sacc-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s var(--ease-out);
+}
+.sacc.open .sacc-body { max-height: 500px; }
+.sacc-body-inner { padding: 0 24px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.upload-box-sm {
+  background: var(--parchment); border-radius: 12px; padding: 20px;
+  text-align: center; border: 1.5px dashed rgba(92,139,106,0.4);
+}
+.upload-box-sm .ub-icon { font-size: 24px; margin-bottom: 6px; }
+.upload-box-sm p { font-size: 12px; color: var(--sage); line-height: 1.6; }
+.upload-box-sm strong { color: var(--forest); }
+
+.respons-box {
+  background: linear-gradient(135deg, rgba(46,95,62,0.04), rgba(92,139,106,0.08));
+  border-radius: 12px; padding: 18px;
+  border-left: 3px solid var(--sage);
+}
+.rb-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--sage); margin-bottom: 8px;
+}
+.rb-text { font-size: 13px; color: #4A5E50; line-height: 1.7; }
+.rb-text strong { color: var(--forest); font-weight: 500; }
+
+/* ============================================================
+   PAGE 5 — REFLEKSI
+   ============================================================ */
+#p5 { background: var(--cream); }
+
+.refleksi-body { padding: 64px 80px 80px; }
+
+.refleksi-timeline { position: relative; }
+.refleksi-timeline::before {
+  content: '';
+  position: absolute; left: 27px; top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--forest), var(--sage), var(--gold));
+}
+
+.rtl-item { display: flex; gap: 32px; margin-bottom: 48px; position: relative; }
+
+.rtl-marker {
+  width: 56px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+}
+.rtl-circle {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 3px solid var(--cream);
+  z-index: 1; flex-shrink: 0;
+  box-shadow: 0 0 0 2px currentColor;
+  margin-top: 24px;
+}
+.rc1 { background: #3A3A9A; color: #3A3A9A; }
+.rc2 { background: var(--sage); color: var(--sage); }
+.rc3 { background: var(--gold); color: var(--gold); }
+
+.rtl-card {
+  flex: 1; background: var(--white); border-radius: 20px;
+  border: 1px solid var(--parchment); overflow: hidden;
+}
+.rtl-card-head {
+  padding: 24px 28px 20px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  border-bottom: 1px solid var(--parchment);
+}
+.rtl-siklus {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--sage); margin-bottom: 6px;
+}
+.rtl-judul { font-family: var(--ff-head); font-size: 26px; color: var(--forest); }
+.rtl-pill {
+  padding: 5px 14px; border-radius: 999px; font-size: 11px; font-weight: 500;
+}
+.rp1 { background: #EEF0FD; color: #3A3A9A; }
+.rp2 { background: #E8F5EE; color: #1A5E38; }
+.rp3 { background: #FDF4E3; color: #7A5215; }
+
+.rtl-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+}
+.rtl-cell {
+  padding: 20px 28px; border-right: 1px solid var(--parchment); border-bottom: 1px solid var(--parchment);
+}
+.rtl-cell:nth-child(even) { border-right: none; }
+.rtl-cell:nth-last-child(-n+2) { border-bottom: none; }
+.rtl-cell.full { grid-column: 1 / -1; border-right: none; }
+
+.rtl-cell-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--sage); margin-bottom: 8px;
+}
+.rtl-cell-text { font-size: 13px; color: #4A5E50; line-height: 1.75; }
+.rtl-cell-text strong { color: var(--forest); font-weight: 500; }
+
+.lesson-bar {
+  background: linear-gradient(90deg, var(--forest), var(--moss));
+  padding: 14px 28px; font-size: 13px; color: rgba(255,255,255,0.85);
+  line-height: 1.6;
+}
+.lesson-bar strong { color: var(--amber); font-weight: 500; }
+
+/* Kompetensi grid */
+.komp-grid-r {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  margin-top: 48px;
+}
+.komp-r {
+  background: var(--white); border-radius: 16px; padding: 20px;
+  border: 1px solid var(--parchment); text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.komp-r:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(13,27,18,0.1); }
+.komp-r-stripe {
+  height: 3px; border-radius: 3px; margin: -20px -20px 16px; border-radius: 16px 16px 0 0;
+}
+.komp-r:nth-child(1) .komp-r-stripe { background: linear-gradient(90deg, #3A3A9A, #7777CC); }
+.komp-r:nth-child(2) .komp-r-stripe { background: linear-gradient(90deg, var(--forest), var(--sage)); }
+.komp-r:nth-child(3) .komp-r-stripe { background: linear-gradient(90deg, var(--gold), var(--amber)); }
+.komp-r:nth-child(4) .komp-r-stripe { background: linear-gradient(90deg, #8B2020, #C45A5A); }
+.komp-r-icon { font-size: 26px; margin-bottom: 8px; }
+.komp-r-name { font-size: 13px; font-weight: 500; color: var(--forest); margin-bottom: 6px; }
+.komp-r-desc { font-size: 11px; color: var(--sage); line-height: 1.6; }
+
+/* ============================================================
+   PAGE 6 — MODEL GURU
+   ============================================================ */
+#p6 { background: var(--cream); }
+
+.model-body { padding: 64px 80px 80px; }
+
+/* Bento grid layout */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: auto;
+  gap: 16px;
+}
+
+.bento-cell {
+  background: var(--white); border-radius: 20px; padding: 28px;
+  border: 1px solid var(--parchment);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s;
+}
+.bento-cell:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(13,27,18,0.1); }
+.bento-cell.dark { background: var(--forest); border-color: var(--forest); }
+.bento-cell.gold-bg { background: var(--gold); border-color: var(--gold); }
+
+.bc-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--sage); margin-bottom: 12px;
+}
+.bento-cell.dark .bc-label { color: var(--mist); }
+.bento-cell.gold-bg .bc-label { color: rgba(255,255,255,0.8); }
+
+.bc-title {
+  font-family: var(--ff-head); font-size: 24px; color: var(--forest);
+  margin-bottom: 12px; line-height: 1.2;
+}
+.bento-cell.dark .bc-title { color: var(--white); }
+.bento-cell.gold-bg .bc-title { color: var(--forest); }
+
+.bc-text { font-size: 13px; color: #4A5E50; line-height: 1.75; }
+.bento-cell.dark .bc-text { color: rgba(255,255,255,0.7); }
+.bc-text strong { font-weight: 500; color: var(--forest); }
+.bento-cell.dark .bc-text strong { color: var(--amber); }
+
+/* Grid placements */
+.bc-misi      { grid-column: 1 / 8; grid-row: 1; }
+.bc-khd       { grid-column: 8 / 13; grid-row: 1 / 3; }
+.bc-ped       { grid-column: 1 / 4; grid-row: 2; }
+.bc-prof      { grid-column: 4 / 8; grid-row: 2; }
+.bc-sos       { grid-column: 1 / 5; grid-row: 3; }
+.bc-kep       { grid-column: 5 / 9; grid-row: 3; }
+.bc-rencana   { grid-column: 9 / 13; grid-row: 3; }
+.bc-komitmen  { grid-column: 1 / 13; grid-row: 4; }
+
+.misi-items { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.misi-row-b {
+  display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px;
+  background: var(--parchment); border-radius: 10px;
+}
+.misi-n {
+  width: 24px; height: 24px; border-radius: 7px;
+  background: var(--forest); color: var(--amber);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; flex-shrink: 0;
+}
+.misi-t { font-size: 13px; color: #4A5E50; line-height: 1.55; padding-top: 2px; }
+.misi-t strong { color: var(--forest); font-weight: 500; }
+
+.khd-trio { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+.khd-item {
+  padding: 14px; border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+}
+.khd-jawa {
+  font-family: var(--ff-head); font-style: italic;
+  font-size: 15px; color: var(--amber); margin-bottom: 4px;
+}
+.khd-arti { font-size: 11px; color: rgba(255,255,255,0.65); line-height: 1.55; }
+
+.rencana-items { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.ri { display: flex; gap: 8px; align-items: center; font-size: 12px; color: rgba(255,255,255,0.75); }
+.ri-icon { font-size: 14px; flex-shrink: 0; }
+
+.komitmen-inner { text-align: center; }
+.komitmen-big {
+  font-family: var(--ff-head); font-size: clamp(26px, 4vw, 40px);
+  color: var(--white); font-weight: 300; line-height: 1.4; margin-bottom: 20px;
+}
+.komitmen-big em { font-style: italic; color: var(--amber); }
+.komitmen-sub { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.75; max-width: 600px; margin: 0 auto 24px; }
+.komitmen-sig {
+  font-family: var(--ff-head); font-style: italic;
+  font-size: 22px; color: var(--amber);
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes scrollPulse {
+  0%, 100% { opacity: 1; transform: scaleY(1); }
+  50% { opacity: 0.3; transform: scaleY(0.6); }
+}
+
+/* ============================================================
+   PAGE TRANSITIONS
+   ============================================================ */
+.page {
+  animation: none;
+}
+.page.entering {
+  animation: fadeUp 0.5s var(--ease-out) both;
+}
+
+/* ============================================================
+   RESPONSIVE (basic)
+   ============================================================ */
+@media (max-width: 960px) {
+  .hero-content { grid-template-columns: 1fr; padding: 80px 32px; }
+  .hero-right { display: none; }
+  .pg-header, .profil-body, .artefak-body, .penilaian-body, .refleksi-body, .model-body { padding: 48px 32px; }
+  .profil-grid { grid-template-columns: 1fr; }
+  .profil-left { position: static; display: none; }
+  .apane.active { grid-template-columns: 1fr; }
+  .rtl-grid { grid-template-columns: 1fr; }
+  .rtl-cell { border-right: none; }
+  .komp-grid-r { grid-template-columns: 1fr 1fr; }
+  .bento { display: flex; flex-direction: column; }
+  .sidenav { width: 56px; }
+  .main { margin-left: 56px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor">
+  <div class="cursor-dot" id="curDot"></div>
+  <div class="cursor-ring" id="curRing"></div>
+</div>
+
+<!-- Sidebar Navigation -->
+<nav class="sidenav">
+  <button class="nav-item active" data-page="p1" onclick="goTo('p1')">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span class="nav-tooltip">Beranda</span>
+  </button>
+  <button class="nav-item" data-page="p2" onclick="goTo('p2')">
+    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span class="nav-tooltip">Profil Mahasiswa</span>
+  </button>
+  <button class="nav-item" data-page="p3" onclick="goTo('p3')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    <span class="nav-tooltip">Artefak Pembelajaran</span>
+  </button>
+  <button class="nav-item" data-page="p4" onclick="goTo('p4')">
+    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    <span class="nav-tooltip">Penilaian GP & DPL</span>
+  </button>
+  <button class="nav-item" data-page="p5" onclick="goTo('p5')">
+    <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    <span class="nav-tooltip">Refleksi Diri</span>
+  </button>
+  <button class="nav-item" data-page="p6" onclick="goTo('p6')">
+    <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <span class="nav-tooltip">Model Guru</span>
+  </button>
+</nav>
+
+<main class="main">
+
+  <!-- ======================================================
+       PAGE 1 — BERANDA
+       ====================================================== -->
+  <section class="page active" id="p1">
+    <div class="bg-botanical">
+      <!-- Decorative SVG elements -->
+      <svg width="500" height="500" style="top:-100px;right:-80px;opacity:0.07" viewBox="0 0 500 500">
+        <circle cx="250" cy="250" r="200" fill="none" stroke="#52B788" stroke-width="1"/>
+        <circle cx="250" cy="250" r="150" fill="none" stroke="#52B788" stroke-width="1"/>
+        <circle cx="250" cy="250" r="100" fill="none" stroke="#52B788" stroke-width="1"/>
+        <line x1="50" y1="250" x2="450" y2="250" stroke="#52B788" stroke-width="0.5"/>
+        <line x1="250" y1="50" x2="250" y2="450" stroke="#52B788" stroke-width="0.5"/>
+      </svg>
+      <svg width="300" height="600" style="bottom:-80px;left:80px;opacity:0.05" viewBox="0 0 300 600">
+        <path d="M150 600 Q80 450 150 300 Q220 150 150 0" fill="none" stroke="#C9A84C" stroke-width="2"/>
+        <path d="M150 480 Q100 420 60 440" fill="none" stroke="#C9A84C" stroke-width="1.5"/>
+        <path d="M150 380 Q200 320 240 340" fill="none" stroke="#C9A84C" stroke-width="1.5"/>
+        <path d="M150 280 Q100 220 70 240" fill="none" stroke="#C9A84C" stroke-width="1.5"/>
+      </svg>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-left">
+        <div class="hero-eyebrow">
+          <div class="eyebrow-line"></div>
+          <span class="eyebrow-text">E-Portfolio PPG PGSD</span>
+        </div>
+        <h1 class="hero-name">
+          <span class="line">Rahmat</span>
+          <span class="line">Aulia</span>
+        </h1>
+        <p class="hero-title">Calon Guru Sekolah Dasar &nbsp;·&nbsp; Matematika Kelas 5</p>
+        <div class="hero-quote-wrap">
+          <p class="hero-quote-text">"Ing ngarso sung tulodo, ing madyo mangun karso, tut wuri handayani."</p>
+          <p class="hero-quote-src">— Ki Hajar Dewantara</p>
+        </div>
+        <div class="hero-info-chips">
+          <span class="chip"><strong>SDN Sungai Miai 11</strong></span>
+          <span class="chip">GP: <strong>Sholehah, S.Pd.</strong></span>
+          <span class="chip">DPL: <strong>Dr. Novitawati, S.Psi., M.Pd.</strong></span>
+          <span class="chip">Amuntai, <strong>Kalimantan Selatan</strong></span>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="info-card-big">
+          <p class="icb-label">Program Studi</p>
+          <p class="icb-val">PPG PGSD</p>
+          <p class="icb-sub">Pendidikan Profesi Guru — Sekolah Dasar</p>
+        </div>
+        <div class="info-card-big">
+          <p class="icb-label">Sekolah PPL Terbimbing</p>
+          <p class="icb-val">SDN Sungai Miai 11</p>
+          <p class="icb-sub">Banjarmasin, Kalimantan Selatan</p>
+        </div>
+        <div class="info-card-big" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div>
+            <p class="icb-label">Guru Pamong</p>
+            <p class="icb-val" style="font-size:16px">Sholehah, S.Pd.</p>
+          </div>
+          <div>
+            <p class="icb-label">DPL</p>
+            <p class="icb-val" style="font-size:14px">Dr. Novitawati, S.Psi., M.Pd.</p>
+          </div>
+        </div>
+        <div class="info-card-big" style="text-align:center;background:rgba(201,168,76,0.12);border-color:rgba(201,168,76,0.3)">
+          <p class="icb-label" style="color:var(--amber)">Asal Daerah</p>
+          <p class="icb-val" style="font-size:28px;font-family:var(--ff-head);font-style:italic">Kota Seribu Rawa</p>
+          <p class="icb-sub">Amuntai, Hulu Sungai Utara, Kalimantan Selatan</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>scroll</span>
+    </div>
+  </section>
+
+  <!-- ======================================================
+       PAGE 2 — PROFIL
+       ====================================================== -->
+  <section class="page" id="p2">
+    <div class="pg-header">
+      <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Halaman 2</span></div>
+      <h1 class="pg-title">Profil <em>Mahasiswa</em></h1>
+    </div>
+
+    <div class="profil-body">
+      <div class="profil-grid">
+        <div class="profil-left">
+          <div class="avatar-frame">
+            <div class="avatar-placeholder">
+              <div class="avatar-monogram">RA</div>
+              <p class="avatar-hint">Ganti dengan<br>foto Anda</p>
+            </div>
+          </div>
+          <div class="profil-badge-row">
+            <span class="pbadge">PPG PGSD</span>
+            <span class="pbadge">Matematika Kelas 5</span>
+            <span class="pbadge">SDN Sungai Miai 11</span>
+            <span class="pbadge">Amuntai, HSU</span>
+          </div>
+        </div>
+
+        <div class="profil-right">
+          <div class="s-label"><span class="s-label-text">Asal Daerah</span><span class="s-label-line"></span></div>
+          <p class="narasi-p">
+            Saya, <strong>Rahmat Aulia</strong>, lahir dan besar di <strong>Amuntai</strong>, ibu kota Kabupaten Hulu Sungai Utara, Kalimantan Selatan — sebuah kota yang dikenal dengan julukan <em>Kota Seribu Rawa</em>. Hamparan rawa yang luas bukan sekadar bentang alam; ia adalah ruang hidup bagi masyarakat yang telah bertahan selama berabad-abad dengan kearifan dan kemandirian.
+          </p>
+          <p class="narasi-p">
+            Dari tanah rawa yang kaya ini, saya belajar bahwa <strong>kesabaran, ketekunan, dan kemampuan beradaptasi</strong> adalah nilai yang tidak ternilai — dan nilai-nilai inilah yang ingin saya bawa ke dalam kelas sebagai seorang guru.
+          </p>
+
+          <div class="daerah-strip">
+            <p class="daerah-strip-title">Keunikan & Kebanggaan Amuntai</p>
+            <div class="daerah-item">
+              <div class="daerah-emoji">🦆</div>
+              <div><p class="daerah-nama">Itik Alabio</p><p class="daerah-ket">Bebek langka khas Kalimantan Selatan, kebanggaan nasional dari HSU</p></div>
+            </div>
+            <div class="daerah-item">
+              <div class="daerah-emoji">🐃</div>
+              <div><p class="daerah-nama">Kerbau Rawa (Hadangan)</p><p class="daerah-ket">Simbol ketangguhan, mampu bertahan di medan berlumpur</p></div>
+            </div>
+            <div class="daerah-item">
+              <div class="daerah-emoji">🌿</div>
+              <div><p class="daerah-nama">Kota Seribu Rawa</p><p class="daerah-ket">Hamparan rawa yang menjadi ekosistem kehidupan dan identitas kota</p></div>
+            </div>
+            <div class="daerah-item">
+              <div class="daerah-emoji">🧺</div>
+              <div><p class="daerah-nama">Kerajinan Purun & Paikat</p><p class="daerah-ket">Anyaman tangan dari tanaman rawa, warisan perempuan Amuntai</p></div>
+            </div>
+          </div>
+
+          <div class="s-label"><span class="s-label-text">Inspirasi & Tujuan</span><span class="s-label-line"></span></div>
+          <p class="narasi-p">
+            Perjalanan saya memilih profesi guru bukan sebuah kebetulan. Sejak kecil, saya menyaksikan bagaimana seorang guru mampu mengubah arah hidup seorang anak — bukan hanya dengan mengajarkan rumus atau hafalan, melainkan dengan <strong>kehadiran, kepercayaan, dan kasih sayang yang tulus</strong>.
+          </p>
+          <p class="narasi-p">
+            Tujuan saya sederhana namun mendalam: menjadi guru yang tidak hanya mengajar, tetapi juga <strong>mendampingi, memahami, dan menginspirasi</strong> setiap murid untuk menemukan potensi terbaik dalam dirinya.
+          </p>
+
+          <div class="pull-quote">
+            <p class="pull-quote-text">"Ing ngarso sung tulodo, ing madyo mangun karso, tut wuri handayani."</p>
+            <p class="pull-quote-src">— Ki Hajar Dewantara</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================
+       PAGE 3 — ARTEFAK
+       ====================================================== -->
+  <section class="page" id="p3">
+    <div class="pg-header">
+      <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Halaman 3</span></div>
+      <h1 class="pg-title">Artefak <em>Pembelajaran</em></h1>
+    </div>
+
+    <div class="artefak-body">
+      <div class="artefak-tabs">
+        <button class="atab active" onclick="swTab(this,'at0')">Rencana Pembelajaran</button>
+        <button class="atab" onclick="swTab(this,'at1')">Media Pembelajaran</button>
+        <button class="atab" onclick="swTab(this,'at2')">Hasil Kerja Siswa</button>
+        <button class="atab" onclick="swTab(this,'at3')">Video Mengajar</button>
+      </div>
+
+      <!-- RPP -->
+      <div class="apane active" id="at0">
+        <div class="acard">
+          <div class="acard-icon">📄</div>
+          <p class="acard-label">Konteks</p>
+          <p class="acard-title">RPP — 3 Siklus</p>
+          <p class="acard-text">RPP disusun untuk pembelajaran <strong>Matematika Kelas 5</strong> di SDN Sungai Miai 11, dengan perbaikan bertahap berdasarkan masukan dari Guru Pamong Ibu Sholehah, S.Pd. dan DPL Dr. Novitawati, S.Psi., M.Pd.</p>
+        </div>
+        <div class="acard">
+          <div class="acard-icon">🎯</div>
+          <p class="acard-label">Tujuan</p>
+          <p class="acard-title">Pembelajaran Bermakna</p>
+          <p class="acard-text">Merancang pembelajaran yang <strong>terstruktur, berpusat pada siswa</strong>, dengan prinsip pembelajaran aktif dan diferensiasi sesuai kebutuhan peserta didik kelas 5 SD.</p>
+        </div>
+        <div class="acard">
+          <div class="acard-icon">✅</div>
+          <p class="acard-label">Kelebihan</p>
+          <p class="acard-title">Tujuan Terukur & Kontekstual</p>
+          <p class="acard-text">Tujuan pembelajaran terukur (SMART), langkah kegiatan runtut, penilaian autentik, dan pendekatan kontekstual yang mengaitkan konsep matematika dengan <strong>kehidupan sehari-hari siswa</strong>.</p>
+        </div>
+        <div class="acard">
+          <div class="acard-icon">🔧</div>
+          <p class="acard-label">Kekurangan & Perbaikan</p>
+          <p class="acard-title">Manajemen Waktu</p>
+          <p class="acard-text">Pada siklus pertama, alokasi waktu untuk diskusi kelompok <strong>kurang optimal</strong>. Diperbaiki pada siklus 2 dan 3 dengan rencana waktu yang lebih ketat dan cadangan strategi.</p>
+        </div>
+        <div class="acard full dark">
+          <p class="acard-label">Kajian Teori</p>
+          <p class="acard-title">Landasan Teoritis RPP</p>
+          <div class="teori-list">
+            <div class="teori-row"><div class="teori-bullet"></div><p class="teori-row-text"><strong>Ausubel (1963) — Belajar Bermakna:</strong> materi baru dihubungkan dengan prior knowledge siswa melalui apersepsi yang terancang matang.</p></div>
+            <div class="teori-row"><div class="teori-bullet"></div><p class="teori-row-text"><strong>Vygotsky (1978) — ZPD & Scaffolding:</strong> bantuan bertahap sesuai Zone of Proximal Development: demonstrasi guru → latihan terbimbing → tugas mandiri.</p></div>
+            <div class="teori-row"><div class="teori-bullet"></div><p class="teori-row-text"><strong>Tyler (1949) — Curriculum Alignment:</strong> keselarasan antara tujuan, pengalaman belajar, pengorganisasian, dan evaluasi dalam satu kesatuan RPP yang koheren.</p></div>
+          </div>
+          <div class="upload-zone">📎 Unggah file RPP siklus 1, 2, dan 3 (PDF) melalui fitur "Drive" di Google Sites</div>
+        </div>
+      </div>
+
+      <!-- Media -->
+      <div class="apane" id="at1">
+        <div class="acard">
+          <div class="acard-icon">🎨</div>
+          <p class="acard-label">Konteks</p>
+          <p class="acard-title">Media Visual & Konkret</p>
+          <p class="acard-text">Media mencakup <strong>kartu bilangan, papan peraga nilai tempat, dan slide PowerPoint</strong> dengan visualisasi animasi sederhana untuk mendukung pemahaman konsep Matematika secara konkret.</p>
+        </div>
+        <div class="acard">
+          <div class="acard-icon">🎯</div>
+          <p class="acard-label">Tujuan</p>
+          <p class="acard-title">Meningkatkan Keterlibatan</p>
+          <p class="acard-text">Meningkatkan motivasi dan pemahaman siswa melalui media yang <strong>menarik dan interaktif</strong>, sesuai karakteristik peserta didik usia kelas 5 SD dalam tahap operasional konkret.</p>
+        </div>
+        <div class="acard">
+          <div class="acard-icon">✅</div>
+          <p class="acard-label">Kelebihan</p>
+          <p class="acard-title">Abstrak Jadi Konkret</p>
+          <p class="acard-text">Konsep abstrak matematika menjadi lebih mudah dipahami. Siswa lebih antusias dan aktif. Kartu bilangan dapat <strong>dimanipulasi langsung</strong> dalam kegiatan kelompok.</p>
+        </div>
+        <div class="acard">
+          <div class="acard-icon">🔧</div>
+          <p class="acard-label">Kekurangan</p>
+          <p class="acard-title">Keterbatasan Fasilitas</p>
+          <p class="acard-text">Keterbatasan proyektor di sekolah menjadi tantangan. Persiapan media beberapa kali memerlukan waktu lebih dari rencana — <strong>diatasi dengan media non-digital alternatif</strong>.</p>
+        </div>
+        <div class="acard full dark">
+          <p class="acard-label">Kajian Teori</p>
+          <p class="acard-title">Landasan Teoritis Media</p>
+          <div class="teori-list">
+            <div class="teori-row"><div class="teori-bullet"></div><p class="teori-row-text"><strong>Edgar Dale (1969) — Kerucut Pengalaman:</strong> retensi belajar meningkat seiring konkretnya pengalaman. Media konkret memberikan retensi jauh lebih tinggi dari pembelajaran verbal semata.</p></div>
+            <div class="teori-row"><div class="teori-bullet"></div><p class="teori-row-text"><strong>Piaget — Operasional Konkret:</strong> siswa kelas 5 (±10–11 th) butuh manipulasi objek nyata sebelum abstraksi simbolik matematika dapat benar-benar dipahami.</p></div>
+            <div class="teori-row"><div class="teori-bullet"></div><p class="teori-row-text"><strong>TPACK — Mishra & Koehler (2006):</strong> integrasi teknologi harus sinergis dengan pengetahuan pedagogik dan konten; teknologi bukan tujuan, melainkan alat yang bermakna.</p></div>
+          </div>
+          <div class="upload-zone">📸 Sisipkan foto media pembelajaran melalui fitur "Gambar" di Google Sites</div>
+        </div>
+      </div>
+
+      <!-- Hasil Kerja Siswa -->
+      <div class="apane" id="at2">
+        <div class="acard">
+          <div class="acard-icon">📝</div>
+          <p class="acard-label">Konteks</p>
+          <p class="acard-title">Capaian Belajar Siswa</p>
+          <p class="acard-text">Dipilih secara representatif untuk menggambarkan rentang kemampuan — dari siswa yang sudah <strong>melampaui tujuan</strong>, hingga yang masih memerlukan pendampingan intensif.</p>
+        </div>
+        <div class="acard">
+          <div class="acard-icon">🎯</div>
+          <p class="acard-label">Tujuan</p>
+          <p class="acard-title">Bukti Autentik Capaian</p>
+          <p class="acard-text">Mendokumentasikan capaian belajar siswa sebagai <strong>bukti nyata efektivitas</strong> pembelajaran yang telah dirancang dan dilaksanakan selama tiga siklus PPL Terbimbing.</p>
+        </div>
+        <div class="acard">
+          <div class="acard-icon">✅</div>
+          <p class="acard-label">Kelebihan</p>
+          <p class="acard-title">Peningkatan Tiap Siklus</p>
+          <p class="acard-text">Terdapat peningkatan pemahaman dari siklus ke siklus. Siswa mampu menyelesaikan soal secara <strong>prosedural dan konseptual</strong> — bukan sekadar menghafal cara.</p>
+        </div>
+        <div class="acard">
+          <div class="acard-icon">🔧</div>
+          <p class="acard-label">Kekurangan</p>
+          <p class="acard-title">Soal Cerita Kontekstual</p>
+          <p class="acard-text">Beberapa siswa masih kesulitan dengan soal cerita berbasis konteks yang kurang familiar. Menjadi <strong>catatan perbaikan</strong> untuk kontekstualisasi lokal pada siklus berikutnya.</p>
+        </div>
+        <div class="acard full dark">
+          <p class="acard-label">Kajian Teori</p>
+          <p class="acard-title">Landasan Analisis Hasil Kerja</p>
+          <div class="teori-list">
+            <div class="teori-row"><div class="teori-bullet"></div><p class="teori-row-text"><strong>Taksonomi Bloom Revisi — Anderson & Krathwohl (2001):</strong> sebagian besar siswa mencapai C2 (Memahami) – C3 (Mengaplikasikan). Target siklus berikutnya: level C4 Menganalisis.</p></div>
+            <div class="teori-row"><div class="teori-bullet"></div><p class="teori-row-text"><strong>Asesmen Autentik — Wiggins (1990):</strong> penilaian bermakna melalui tugas nyata mencerminkan kemampuan siswa secara holistik, melampaui tes konvensional pilihan ganda.</p></div>
+          </div>
+          <div class="upload-zone">📸 Unggah foto hasil kerja siswa (samakan/blur nama & wajah siswa sesuai etika pendidikan)</div>
+        </div>
+      </div>
+
+      <!-- Video -->
+      <div class="apane" id="at3">
+        <div class="acard">
+          <div class="acard-icon">🎥</div>
+          <p class="acard-label">Konteks</p>
+          <p class="acard-title">Dokumentasi Video Kelas</p>
+          <p class="acard-text">Video mencakup kegiatan <strong>pembukaan, inti, dan penutup</strong> pembelajaran Matematika di Kelas 5 SDN Sungai Miai 11 pada salah satu siklus PPL Terbimbing.</p>
+        </div>
+        <div class="acard">
+          <div class="acard-icon">🎯</div>
+          <p class="acard-label">Tujuan</p>
+          <p class="acard-title">Refleksi Berbasis Bukti</p>
+          <p class="acard-text">Memberikan bukti visual proses pembelajaran sekaligus sebagai <strong>bahan refleksi diri yang lebih objektif</strong> tentang praktik mengajar dibandingkan refleksi berbasis ingatan.</p>
+        </div>
+        <div class="acard">
+          <div class="acard-icon">✅</div>
+          <p class="acard-label">Kelebihan</p>
+          <p class="acard-title">Observasi Objektif</p>
+          <p class="acard-text">Melalui video, saya dapat mengamati kekuatan dan kelemahan dalam pengelolaan kelas, kejelasan penyampaian materi, serta <strong>interaksi dengan siswa</strong> secara lebih objektif.</p>
+        </div>
+        <div class="acard">
+          <div class="acard-icon">🔧</div>
+          <p class="acard-label">Kekurangan</p>
+          <p class="acard-title">Tempo & Kontak Mata</p>
+          <p class="acard-text">Pada siklus pertama, tempo penyampaian terlalu cepat. Kontak mata dengan seluruh siswa perlu ditingkatkan agar pembelajaran lebih <strong>inklusif dan merata</strong>.</p>
+        </div>
+        <div class="acard full dark">
+          <p class="acard-label">Kajian Teori</p>
+          <p class="acard-title">Landasan Teoritis Praktik Mengajar</p>
+          <div class="teori-list">
+            <div class="teori-row"><div class="teori-bullet"></div><p class="teori-row-text"><strong>Schön (1983) — Reflective Practice:</strong> reflection-on-action melalui video memungkinkan analisis praktik mengajar yang lebih objektif dan sistematis.</p></div>
+            <div class="teori-row"><div class="teori-bullet"></div><p class="teori-row-text"><strong>Kolb (1984) — Experiential Learning:</strong> video adalah titik awal siklus Kolb: Pengalaman Konkret → Observasi Reflektif → Konseptualisasi → Eksperimentasi.</p></div>
+          </div>
+          <div class="upload-zone">🎬 Embed video melalui fitur "YouTube" atau "Embed" di Google Sites</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================
+       PAGE 4 — PENILAIAN
+       ====================================================== -->
+  <section class="page" id="p4">
+    <div class="pg-header">
+      <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Halaman 4</span></div>
+      <h1 class="pg-title">Penilaian <em>GP & DPL</em></h1>
+    </div>
+
+    <div class="penilaian-body">
+      <p style="font-size:14px;color:#4A5E50;line-height:1.8;max-width:680px;margin-bottom:36px;">
+        Penilaian resmi dari <strong style="color:var(--forest)">Guru Pamong Sholehah, S.Pd.</strong> dan pendampingan <strong style="color:var(--forest)">DPL Dr. Novitawati, S.Psi., M.Pd.</strong> terhadap rancangan pembelajaran dan praktik mengajar selama tiga siklus PPL Terbimbing di SDN Sungai Miai 11.
+      </p>
+
+      <div class="lamp-tabs">
+        <button class="ltab active" onclick="swLamp(this,'l7')">Lampiran 7 — Perangkat Pembelajaran</button>
+        <button class="ltab" onclick="swLamp(this,'l8')">Lampiran 8 — Praktik Mengajar</button>
+      </div>
+
+      <div class="lpane active" id="l7">
+        <div class="siklus-accordion">
+          <div class="sacc open">
+            <div class="sacc-header" onclick="togAcc(this)">
+              <div class="sacc-left">
+                <div class="sacc-num sn1">I</div>
+                <div><p class="sacc-name">Siklus 1</p><p class="sacc-sub">Penilaian penyusunan perangkat pembelajaran — tahap pertama</p></div>
+              </div>
+              <span class="sacc-arrow">▾</span>
+            </div>
+            <div class="sacc-body"><div class="sacc-body-inner">
+              <div class="upload-box-sm"><div class="ub-icon">📄</div><p><strong>Unggah Lampiran 7 Siklus 1</strong><br>Scan/foto dokumen dari Ibu Sholehah, S.Pd.<br>Format: PDF atau JPG</p></div>
+              <div class="respons-box"><p class="rb-label">Respons & Tindak Lanjut</p><p class="rb-text">Mendapat masukan bahwa rumusan tujuan pembelajaran perlu diperjelas dengan kata kerja operasional lebih terukur. Langsung diterapkan pada RPP Siklus 2 dengan format <strong>ABCD (Audience, Behavior, Condition, Degree)</strong>.</p></div>
+            </div></div>
+          </div>
+          <div class="sacc">
+            <div class="sacc-header" onclick="togAcc(this)">
+              <div class="sacc-left">
+                <div class="sacc-num sn2">II</div>
+                <div><p class="sacc-name">Siklus 2</p><p class="sacc-sub">Penilaian penyusunan perangkat pembelajaran — tahap kedua</p></div>
+              </div>
+              <span class="sacc-arrow">▾</span>
+            </div>
+            <div class="sacc-body"><div class="sacc-body-inner">
+              <div class="upload-box-sm"><div class="ub-icon">📄</div><p><strong>Unggah Lampiran 7 Siklus 2</strong><br>Scan/foto dokumen dari Ibu Sholehah, S.Pd.<br>Format: PDF atau JPG</p></div>
+              <div class="respons-box"><p class="rb-label">Respons & Tindak Lanjut</p><p class="rb-text">Peningkatan pada aspek <strong>kesesuaian tujuan, kegiatan, dan penilaian</strong>. Alokasi waktu diperbaiki agar lebih realistis. Mulai menerapkan diferensiasi sederhana dalam RPP.</p></div>
+            </div></div>
+          </div>
+          <div class="sacc">
+            <div class="sacc-header" onclick="togAcc(this)">
+              <div class="sacc-left">
+                <div class="sacc-num sn3">III</div>
+                <div><p class="sacc-name">Siklus 3</p><p class="sacc-sub">Penilaian penyusunan perangkat pembelajaran — tahap ketiga</p></div>
+              </div>
+              <span class="sacc-arrow">▾</span>
+            </div>
+            <div class="sacc-body"><div class="sacc-body-inner">
+              <div class="upload-box-sm"><div class="ub-icon">📄</div><p><strong>Unggah Lampiran 7 Siklus 3</strong><br>Scan/foto dokumen dari Ibu Sholehah, S.Pd.<br>Format: PDF atau JPG</p></div>
+              <div class="respons-box"><p class="rb-label">Respons & Tindak Lanjut</p><p class="rb-text">Penilaian siklus 3 menunjukkan hasil <strong>paling baik secara keseluruhan</strong>. Refleksi berkelanjutan dan komunikasi intensif dengan Guru Pamong menjadi kunci utama perbaikan yang konsisten.</p></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lpane" id="l8">
+        <div class="siklus-accordion">
+          <div class="sacc open">
+            <div class="sacc-header" onclick="togAcc(this)">
+              <div class="sacc-left">
+                <div class="sacc-num sn1">I</div>
+                <div><p class="sacc-name">Siklus 1</p><p class="sacc-sub">Penilaian praktik mengajar — tahap pertama</p></div>
+              </div>
+              <span class="sacc-arrow">▾</span>
+            </div>
+            <div class="sacc-body"><div class="sacc-body-inner">
+              <div class="upload-box-sm"><div class="ub-icon">📄</div><p><strong>Unggah Lampiran 8 Siklus 1</strong><br>Scan/foto dokumen dari Ibu Sholehah, S.Pd.<br>Format: PDF atau JPG</p></div>
+              <div class="respons-box"><p class="rb-label">Respons & Tindak Lanjut</p><p class="rb-text">Masukan: <strong>pengelolaan kelas dan manajemen waktu</strong> perlu ditingkatkan. Direspons dengan teknik manajemen kelas dan rutinitas awal pembelajaran yang lebih terstruktur.</p></div>
+            </div></div>
+          </div>
+          <div class="sacc">
+            <div class="sacc-header" onclick="togAcc(this)">
+              <div class="sacc-left">
+                <div class="sacc-num sn2">II</div>
+                <div><p class="sacc-name">Siklus 2</p><p class="sacc-sub">Penilaian praktik mengajar — tahap kedua</p></div>
+              </div>
+              <span class="sacc-arrow">▾</span>
+            </div>
+            <div class="sacc-body"><div class="sacc-body-inner">
+              <div class="upload-box-sm"><div class="ub-icon">📄</div><p><strong>Unggah Lampiran 8 Siklus 2</strong><br>Scan/foto dokumen dari Ibu Sholehah, S.Pd.<br>Format: PDF atau JPG</p></div>
+              <div class="respons-box"><p class="rb-label">Respons & Tindak Lanjut</p><p class="rb-text">Peningkatan pada <strong>interaksi siswa dan variasi metode</strong>. Mulai lebih percaya diri dalam memfasilitasi diskusi kelompok dan memberikan umpan balik personal.</p></div>
+            </div></div>
+          </div>
+          <div class="sacc">
+            <div class="sacc-header" onclick="togAcc(this)">
+              <div class="sacc-left">
+                <div class="sacc-num sn3">III</div>
+                <div><p class="sacc-name">Siklus 3</p><p class="sacc-sub">Penilaian praktik mengajar — tahap ketiga</p></div>
+              </div>
+              <span class="sacc-arrow">▾</span>
+            </div>
+            <div class="sacc-body"><div class="sacc-body-inner">
+              <div class="upload-box-sm"><div class="ub-icon">📄</div><p><strong>Unggah Lampiran 8 Siklus 3</strong><br>Scan/foto dokumen dari Ibu Sholehah, S.Pd.<br>Format: PDF atau JPG</p></div>
+              <div class="respons-box"><p class="rb-label">Respons & Tindak Lanjut</p><p class="rb-text">Penilaian siklus 3 mencerminkan <strong>pertumbuhan yang nyata</strong>. Bersyukur atas bimbingan intensif Ibu Sholehah, S.Pd. yang sabar mengarahkan setiap langkah perbaikan.</p></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================
+       PAGE 5 — REFLEKSI
+       ====================================================== -->
+  <section class="page" id="p5">
+    <div class="pg-header">
+      <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Halaman 5</span></div>
+      <h1 class="pg-title">Refleksi <em>Diri</em></h1>
+    </div>
+
+    <div class="refleksi-body">
+      <div class="refleksi-timeline">
+
+        <div class="rtl-item">
+          <div class="rtl-marker"><div class="rtl-circle rc1"></div></div>
+          <div class="rtl-card">
+            <div class="rtl-card-head">
+              <div><p class="rtl-siklus">Siklus 1</p><p class="rtl-judul">Mengenal Kelas</p></div>
+              <span class="rtl-pill rp1">Adaptasi</span>
+            </div>
+            <div class="rtl-grid">
+              <div class="rtl-cell">
+                <p class="rtl-cell-label">Deskripsi Pengalaman</p>
+                <p class="rtl-cell-text">Untuk pertama kalinya berdiri di depan kelas sebagai guru. Ada campuran antusias, gugup, dan tanggung jawab besar. <strong>Dari situlah pembelajaran terdalam dimulai.</strong></p>
+              </div>
+              <div class="rtl-cell">
+                <p class="rtl-cell-label">Yang Berhasil</p>
+                <p class="rtl-cell-text">Apersepsi berhasil menarik perhatian siswa. Penjelasan bertahap efektif. <strong>Hubungan awal dengan siswa terbangun dengan baik</strong> sejak pertemuan pertama.</p>
+              </div>
+              <div class="rtl-cell">
+                <p class="rtl-cell-label">Yang Perlu Diperbaiki</p>
+                <p class="rtl-cell-text">Manajemen waktu kurang optimal. Pertanyaan hanya menjangkau siswa aktif di baris depan. <strong>Umpan balik individual belum maksimal.</strong></p>
+              </div>
+              <div class="rtl-cell">
+                <p class="rtl-cell-label">Rencana Perbaikan</p>
+                <p class="rtl-cell-text">RPP dengan alokasi waktu lebih ketat. Teknik "pertanyaan merata" via peta tempat duduk. <strong>Rubrik umpan balik</strong> sederhana untuk komentar spesifik.</p>
+              </div>
+            </div>
+            <div class="lesson-bar"><strong>💡 Pelajaran utama:</strong> Fleksibilitas dan kemampuan membaca situasi kelas tidak bisa dipelajari hanya dari buku — harus melalui pengalaman langsung.</div>
+          </div>
+        </div>
+
+        <div class="rtl-item">
+          <div class="rtl-marker"><div class="rtl-circle rc2"></div></div>
+          <div class="rtl-card">
+            <div class="rtl-card-head">
+              <div><p class="rtl-siklus">Siklus 2</p><p class="rtl-judul">Menerapkan Perbaikan</p></div>
+              <span class="rtl-pill rp2">Berkembang</span>
+            </div>
+            <div class="rtl-grid">
+              <div class="rtl-cell">
+                <p class="rtl-cell-label">Deskripsi Pengalaman</p>
+                <p class="rtl-cell-text">Membawa catatan panjang dari refleksi siklus 1. <strong>Kepercayaan diri meningkat nyata</strong> — namun kesadaran bahwa masih banyak yang perlu dipelajari juga semakin kuat.</p>
+              </div>
+              <div class="rtl-cell">
+                <p class="rtl-cell-label">Yang Berhasil</p>
+                <p class="rtl-cell-text">Manajemen waktu meningkat signifikan. Siswa pasif mulai berani berbicara. <strong>Diskusi kelompok berjalan lebih terstruktur</strong> dan produktif.</p>
+              </div>
+              <div class="rtl-cell">
+                <p class="rtl-cell-label">Yang Perlu Diperbaiki</p>
+                <p class="rtl-cell-text">Siswa masih kesulitan soal cerita berbasis konteks asing. Transisi kegiatan memakan waktu. <strong>Asesmen formatif perlu diperkuat.</strong></p>
+              </div>
+              <div class="rtl-cell">
+                <p class="rtl-cell-label">Rencana Perbaikan</p>
+                <p class="rtl-cell-text">Soal berbasis konteks lokal Kalimantan Selatan. Instruksi transisi eksplisit. <strong>Teknik exit ticket</strong> di akhir pembelajaran.</p>
+              </div>
+            </div>
+            <div class="lesson-bar"><strong>💡 Pelajaran utama:</strong> Membangun kepercayaan siswa butuh konsistensi dan kesabaran. Satu interaksi tulus dapat membuka pintu keterlibatan belajar yang jauh lebih besar.</div>
+          </div>
+        </div>
+
+        <div class="rtl-item">
+          <div class="rtl-marker"><div class="rtl-circle rc3"></div></div>
+          <div class="rtl-card">
+            <div class="rtl-card-head">
+              <div><p class="rtl-siklus">Siklus 3</p><p class="rtl-judul">Konsolidasi & Pertumbuhan</p></div>
+              <span class="rtl-pill rp3">Matang</span>
+            </div>
+            <div class="rtl-grid">
+              <div class="rtl-cell">
+                <p class="rtl-cell-label">Deskripsi Pengalaman</p>
+                <p class="rtl-cell-text">Memasuki kelas dengan pemahaman mendalam tentang setiap siswa — siapa yang cepat, siapa yang butuh pendampingan, siapa yang belajar terbaik lewat visual. <strong>Paling bermakna dari semua siklus.</strong></p>
+              </div>
+              <div class="rtl-cell">
+                <p class="rtl-cell-label">Yang Berhasil</p>
+                <p class="rtl-cell-text">Kontekstualisasi lokal meningkatkan keterlibatan siswa. Exit ticket efektif memetakan pemahaman. <strong>Peningkatan hasil belajar</strong> dari siklus 1 ke 3 yang menggembirakan.</p>
+              </div>
+              <div class="rtl-cell">
+                <p class="rtl-cell-label">Refleksi Mendalam</p>
+                <p class="rtl-cell-text">Tiga siklus ini mengubah cara pandang saya secara fundamental. Saya datang membawa teori; saya pergi sebagai calon guru yang <strong>memahami mengajar sebagai seni</strong>.</p>
+              </div>
+              <div class="rtl-cell">
+                <p class="rtl-cell-label">Ke Depan</p>
+                <p class="rtl-cell-text">Mendalami pembelajaran berdiferensiasi, memperkuat asesmen formatif, dan aktif dalam <strong>komunitas belajar guru</strong> untuk pertumbuhan berkelanjutan.</p>
+              </div>
+            </div>
+            <div class="lesson-bar"><strong>💡 Pelajaran utama:</strong> Menjadi guru yang baik adalah perjalanan seumur hidup. PPL Terbimbing ini bukan akhir — ia adalah awal dari perjalanan panjang seorang pendidik profesional.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="s-label" style="margin-top:16px"><span class="s-label-text">Perkembangan Kompetensi</span><span class="s-label-line"></span></div>
+      <div class="komp-grid-r">
+        <div class="komp-r"><div class="komp-r-stripe"></div><div class="komp-r-icon">🧠</div><p class="komp-r-name">Pedagogik</p><p class="komp-r-desc">Diferensiasi dan asesmen formatif yang semakin mendalam dan berpusat pada siswa.</p></div>
+        <div class="komp-r"><div class="komp-r-stripe"></div><div class="komp-r-icon">📚</div><p class="komp-r-name">Profesional</p><p class="komp-r-desc">Penguasaan materi Matematika Kelas 5 dan kemampuan mengaitkannya dengan konteks nyata.</p></div>
+        <div class="komp-r"><div class="komp-r-stripe"></div><div class="komp-r-icon">🤝</div><p class="komp-r-name">Sosial</p><p class="komp-r-desc">Relasi dengan siswa, guru, dan orang tua yang memberikan gambaran ekosistem sekolah nyata.</p></div>
+        <div class="komp-r"><div class="komp-r-stripe"></div><div class="komp-r-icon">❤️</div><p class="komp-r-name">Kepribadian</p><p class="komp-r-desc">Integritas, empati, dan semangat belajar yang semakin menguat sebagai karakter pendidik.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================
+       PAGE 6 — MODEL GURU
+       ====================================================== -->
+  <section class="page" id="p6">
+    <div class="pg-header">
+      <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Halaman 6</span></div>
+      <h1 class="pg-title">Model Guru <em>yang Dituju</em></h1>
+    </div>
+
+    <div class="model-body">
+      <div class="bento">
+
+        <div class="bento-cell bc-misi">
+          <p class="bc-label">Misi Pribadi</p>
+          <p class="bc-title">Menyalakan Cahaya Belajar</p>
+          <div class="misi-items">
+            <div class="misi-row-b"><div class="misi-n">1</div><p class="misi-t">Menciptakan <strong>lingkungan belajar yang aman, inklusif, dan berpihak pada murid</strong> di setiap pertemuan.</p></div>
+            <div class="misi-row-b"><div class="misi-n">2</div><p class="misi-t">Merancang <strong>pembelajaran Matematika yang kontekstual</strong> dan relevan, berbasis kearifan lokal Kalimantan Selatan.</p></div>
+            <div class="misi-row-b"><div class="misi-n">3</div><p class="misi-t">Mengembangkan <strong>karakter dan nilai kebajikan</strong> melalui keteladanan nyata, bukan sekadar instruksi verbal.</p></div>
+            <div class="misi-row-b"><div class="misi-n">4</div><p class="misi-t">Terus belajar sebagai <strong>pendidik yang reflektif dan adaptif</strong> terhadap perubahan dan kebutuhan murid.</p></div>
+          </div>
+        </div>
+
+        <div class="bento-cell bc-khd dark">
+          <p class="bc-label">Filosofi Landasan</p>
+          <p class="bc-title" style="font-style:italic;font-family:var(--ff-head)">Trilogi Ki Hajar Dewantara</p>
+          <div class="khd-trio">
+            <div class="khd-item"><p class="khd-jawa">Ing ngarso sung tulodo</p><p class="khd-arti">Di depan, guru memberi teladan — setiap tindakan adalah pesan yang dibaca murid.</p></div>
+            <div class="khd-item"><p class="khd-jawa">Ing madyo mangun karso</p><p class="khd-arti">Di tengah, guru membangun semangat — menjadi katalis yang menyalakan motivasi belajar.</p></div>
+            <div class="khd-item"><p class="khd-jawa">Tut wuri handayani</p><p class="khd-arti">Dari belakang, guru mendorong kemandirian — melepaskan, bukan menggenggam.</p></div>
+          </div>
+        </div>
+
+        <div class="bento-cell bc-ped">
+          <p class="bc-label">Kompetensi</p>
+          <p class="bc-title">🧠 Pedagogik</p>
+          <p class="bc-text">Mendalami <strong>pembelajaran berdiferensiasi</strong> dan asesmen formatif. Mengintegrasikan teknologi pendidikan secara bermakna.</p>
+        </div>
+
+        <div class="bento-cell bc-prof">
+          <p class="bc-label">Kompetensi</p>
+          <p class="bc-title">📚 Profesional</p>
+          <p class="bc-text">Memperdalam materi Matematika SD. <strong>Aktif di KKG</strong> dan komunitas praktisi. Mengikuti pelatihan pedagogik terkini.</p>
+        </div>
+
+        <div class="bento-cell bc-sos">
+          <p class="bc-label">Kompetensi</p>
+          <p class="bc-title">🤝 Sosial</p>
+          <p class="bc-text">Membangun <strong>komunikasi empatik</strong> dengan siswa, orang tua, rekan guru, dan masyarakat sebagai fondasi ekosistem pendidikan sehat.</p>
+        </div>
+
+        <div class="bento-cell bc-kep">
+          <p class="bc-label">Kompetensi</p>
+          <p class="bc-title">❤️ Kepribadian</p>
+          <p class="bc-text">Menjaga <strong>integritas dan konsistensi</strong> antara ucapan dan tindakan. Semangat belajar sepanjang hayat sebagai teladan bagi murid.</p>
+        </div>
+
+        <div class="bento-cell bc-rencana dark">
+          <p class="bc-label">Rencana Pengembangan</p>
+          <p class="bc-title">Langkah ke Depan</p>
+          <div class="rencana-items">
+            <div class="ri"><span class="ri-icon">🎓</span> Sertifikasi & CPD berkelanjutan</div>
+            <div class="ri"><span class="ri-icon">✍️</span> Menulis refleksi & artikel pendidikan</div>
+            <div class="ri"><span class="ri-icon">🌐</span> Komunitas guru inovatif nasional</div>
+            <div class="ri"><span class="ri-icon">🌿</span> Kearifan lokal Kalimantan Selatan</div>
+            <div class="ri"><span class="ri-icon">🚀</span> Prinsip-prinsip Guru Penggerak</div>
+          </div>
+        </div>
+
+        <div class="bento-cell bc-komitmen dark">
+          <div class="komitmen-inner">
+            <h2 class="komitmen-big">Komitmen <em>Rahmat Aulia</em></h2>
+            <p class="komitmen-sub">Dari tanah Kota Seribu Rawa, saya membawa semangat Hadangan — tangguh, gigih, tidak mudah menyerah — untuk setiap murid yang dipercayakan kepada saya. Saya berkomitmen menjadi guru yang tidak hanya dikenang, tetapi memberikan perubahan nyata bagi pendidikan di Kalimantan Selatan dan Indonesia.</p>
+            <p class="komitmen-sig">Rahmat Aulia &nbsp;·&nbsp; PPG PGSD &nbsp;·&nbsp; SDN Sungai Miai 11</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── Cursor ──────────────────────────────────────────────
+const dot = document.getElementById('curDot');
+const ring = document.getElementById('curRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+function animCursor() {
+  dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animCursor);
+}
+animCursor();
+
+// ── Page navigation ──────────────────────────────────────
+function goTo(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active', 'entering'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  const target = document.getElementById(id);
+  target.classList.add('active', 'entering');
+  document.querySelector(`[data-page="${id}"]`).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── Artefak tabs ─────────────────────────────────────────
+function swTab(btn, paneId) {
+  document.querySelectorAll('.atab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.apane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(paneId).classList.add('active');
+}
+
+// ── Lampiran tabs ─────────────────────────────────────────
+function swLamp(btn, paneId) {
+  document.querySelectorAll('.ltab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.lpane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(paneId).classList.add('active');
+}
+
+// ── Accordion ─────────────────────────────────────────────
+function togAcc(header) {
+  const card = header.parentElement;
+  const wasOpen = card.classList.contains('open');
+  card.parentElement.querySelectorAll('.sacc').forEach(c => c.classList.remove('open'));
+  if (!wasOpen) card.classList.add('open');
+}
+</script>
+
+</body>
+</html>
